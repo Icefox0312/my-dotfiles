@@ -7,8 +7,8 @@ My personal dotfiles for Arch Linux, featuring a dynamic tiling Wayland setup us
 * **Window Manager:** Hyprland (Wayland)
 * **Shell:** Fish + Starship prompt
 * **Terminal:** Kitty
-* **Bar/Widgets:** Waybar / Quickshell
-* **Launcher:** Rofi
+* **Bar/Widgets:** Quickshell
+* **Launcher:** Quickshell
 * **System Monitor:** Btop
 * **Visuals:** Pywal (Dynamic colors) & Cava (Audio visualizer)
 
