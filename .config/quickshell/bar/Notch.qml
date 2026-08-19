@@ -1,0 +1,647 @@
+import QtQuick
+import QtQuick.Layouts
+import Quickshell
+import Quickshell.Io
+
+Item {
+    id: notch
+
+    // =====================================================
+    // COLORS
+    // =====================================================
+
+    property color walBg: "#0b0c07"
+    property color walFg: "#dec9a3"
+    property color walAccent: "#A16B2D"
+
+    // =====================================================
+    // MEDIA STATE
+    // =====================================================
+
+    property string sysMediaText: "No Media Playing"
+    property bool sysMediaPlaying: false
+
+    // =====================================================
+    // NOTCH STATE
+    // =====================================================
+
+    property bool isMediaOpen: false
+    property bool showDate: false
+    property bool isLauncherOpen: false
+    property bool isWallpaperOpen: false
+
+    // =====================================================
+    // SIZE
+    // =====================================================
+
+    width:
+        isLauncherOpen || isWallpaperOpen
+        ? 900
+        : (
+            isMediaOpen
+            ? 320
+            : (
+                showDate
+                ? 190
+                : 130
+            )
+        )
+
+    height:
+        isLauncherOpen || isWallpaperOpen
+        ? 350
+        : (
+            isMediaOpen
+            ? 131
+            : 36
+        )
+
+    anchors.topMargin: 6
+
+    clip: true
+
+    // =====================================================
+    // ANIMATIONS
+    // =====================================================
+
+    Behavior on width {
+        NumberAnimation {
+            duration: 350
+            easing.type: Easing.OutExpo
+        }
+    }
+
+    Behavior on height {
+        NumberAnimation {
+            duration: 350
+            easing.type: Easing.OutExpo
+        }
+    }
+
+    // =====================================================
+    // IPC FIFO LISTENER
+    // =====================================================
+
+    Process {
+        id: fifoProcess
+        command: ["bash", "-c", "rm -f /tmp/notch_ipc && mkfifo /tmp/notch_ipc && while true; do cat /tmp/notch_ipc; done"]
+        running: true
+
+        stdout: SplitParser {
+            onRead: data => {
+                let cmd = data.trim()
+                
+                if (cmd === "toggle_launcher") {
+                    notch.isLauncherOpen = !notch.isLauncherOpen
+                    notch.isMediaOpen = false
+                    notch.isWallpaperOpen = false
+                    notch.showDate = false
+                } else if (cmd === "toggle_wallpaper") {
+                    notch.isWallpaperOpen = !notch.isWallpaperOpen
+                    notch.isMediaOpen = false
+                    notch.isLauncherOpen = false
+                    notch.showDate = false
+                }
+            }
+        }
+    }
+
+    // =====================================================
+    // BACKGROUND
+    // =====================================================
+
+    Rectangle {
+        anchors.fill: parent
+
+        radius: 16
+
+        color:
+            Qt.rgba(
+                notch.walBg.r,
+                notch.walBg.g,
+                notch.walBg.b,
+                0.95
+            )
+
+        border.color:
+            Qt.rgba(
+                notch.walFg.r,
+                notch.walFg.g,
+                notch.walFg.b,
+                0.2
+            )
+
+        border.width: 1
+
+        // =================================================
+        // CLOCK / DATE
+        // =================================================
+
+        Item {
+            id: clockView
+
+            anchors.fill: parent
+
+            opacity:
+                (notch.isMediaOpen && !notch.isLauncherOpen && !notch.isWallpaperOpen)
+                ? 0
+                : (!notch.isMediaOpen && !notch.isLauncherOpen && !notch.isWallpaperOpen ? 1 : 0)
+
+            visible:
+                opacity > 0
+
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: 200
+                }
+            }
+
+            PodButton {
+                id: clockBtn
+
+                anchors.centerIn: parent
+
+                property var currentTime: new Date()
+
+                textContent:
+                    "<b>" +
+                    (
+                        notch.showDate
+                        ? Qt.formatDateTime(
+                            currentTime,
+                            "dddd, dd MMMM"
+                        )
+                        : Qt.formatDateTime(
+                            currentTime,
+                            "h:mm AP"
+                        )
+                    ) +
+                    "</b>"
+
+                fontSize:
+                    notch.showDate
+                    ? 14
+                    : 14
+
+                fgColor:
+                    notch.walFg
+
+                hoverColor:
+                    notch.walAccent
+
+                // -----------------------------------------
+                // CLOCK TIMER
+                // -----------------------------------------
+
+                Timer {
+                    interval: 1000
+
+                    running: true
+
+                    repeat: true
+
+                    onTriggered:
+                        clockBtn.currentTime =
+                            new Date()
+                }
+
+                // -----------------------------------------
+                // CLICK HANDLER
+                // -----------------------------------------
+
+                onClicked: mouse => {
+
+                    // =====================================
+                    // RIGHT CLICK
+                    // =====================================
+
+                    if (
+                        mouse.button ===
+                        Qt.RightButton
+                    ) {
+
+                        // Close media if somehow open
+                        notch.isMediaOpen = false
+
+                        // Show date
+                        notch.showDate = true
+                    }
+
+                    // =====================================
+                    // LEFT CLICK
+                    // =====================================
+
+                    else {
+
+                        // If date is currently visible,
+                        // return to normal clock first.
+                        if (notch.showDate) {
+
+                            notch.showDate = false
+
+                        }
+
+                        // Otherwise open media.
+                        else {
+
+                            notch.isMediaOpen = true
+                        }
+                    }
+                }
+            }
+        }
+
+        // =================================================
+        // MEDIA VIEW
+        // =================================================
+
+        Item {
+            id: mediaView
+
+            anchors.fill: parent
+
+            opacity:
+                notch.isMediaOpen &&
+                !notch.showDate &&
+                !notch.isLauncherOpen &&
+                !notch.isWallpaperOpen
+                ? 1
+                : 0
+
+            visible:
+                opacity > 0
+
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: 250
+                }
+            }
+
+            // ---------------------------------------------
+            // CLOSE MEDIA
+            // ---------------------------------------------
+
+            MouseArea {
+                anchors.fill: parent
+
+                acceptedButtons:
+                    Qt.LeftButton
+
+                onClicked: {
+                    notch.isMediaOpen = false
+                    notch.showDate = false
+                }
+
+                cursorShape:
+                    Qt.PointingHandCursor
+            }
+
+            // ---------------------------------------------
+            // MEDIA CONTENT
+            // ---------------------------------------------
+
+            Column {
+                anchors.centerIn: parent
+
+                spacing: 12
+
+                // =========================================
+                // TRACK TITLE
+                // =========================================
+
+                Item {
+                    width: 280
+                    height: 22
+
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    clip: true
+
+                    Text {
+                        id: trackText
+
+                        text: notch.sysMediaText
+                        color: notch.walFg
+                        font.family: "Inter"
+                        font.pixelSize: 14
+                        font.bold: true
+
+                        width: Math.max(implicitWidth, 280)
+                        horizontalAlignment: Text.AlignHCenter
+
+                        property real maxScroll: Math.max(0, implicitWidth - 280)
+
+                        // 1. Restart animation when text changes
+                        onTextChanged: {
+                            marqueeAnim.restart()
+                        }
+
+                        // ---------------------------------
+                        // MARQUEE
+                        // ---------------------------------
+
+                        SequentialAnimation {
+                            id: marqueeAnim
+
+                            running: 
+                                trackText.maxScroll > 0 && 
+                                notch.isMediaOpen && 
+                                !notch.showDate
+                                
+                            loops: Animation.Infinite
+
+                            // 2. Snap back to center if the animation is interrupted/stopped
+                            onStopped: trackText.x = 0
+
+                            PauseAnimation {
+                                duration: 1000
+                            }
+
+                            NumberAnimation {
+                                target: trackText
+                                property: "x"
+                                from: 0                     // FIX: Explicit start point
+                                to: -trackText.maxScroll    // FIX: Explicit end point
+                                duration: Math.max(500, trackText.maxScroll * 35)
+                                easing.type: Easing.InOutSine
+                            }
+
+                            PauseAnimation {
+                                duration: 1500
+                            }
+
+                            NumberAnimation {
+                                target: trackText
+                                property: "x"
+                                from: -trackText.maxScroll  // FIX: Explicit start point
+                                to: 0                       // FIX: Explicit end point
+                                duration: Math.max(500, trackText.maxScroll * 35)
+                                easing.type: Easing.InOutSine
+                            }
+                        }
+                    }
+                }
+
+                // =========================================
+                // MEDIA CONTROLS
+                // =========================================
+
+                Row {
+                    anchors.horizontalCenter:
+                        parent.horizontalCenter
+
+                    spacing: 28
+
+                    // -------------------------------------
+                    // PREVIOUS
+                    // -------------------------------------
+
+                    PodButton {
+                        textContent:
+                            "󰒮"
+
+                        fontSize:
+                            18
+
+                        fgColor:
+                            notch.walFg
+
+                        hoverColor:
+                            notch.walAccent
+
+                        onClicked:
+                            executor.run(
+                                "playerctl previous"
+                            )
+                    }
+
+                    // -------------------------------------
+                    // PLAY / PAUSE
+                    // -------------------------------------
+
+                    PodButton {
+                        // FIX 1: Lock the width so the row doesn't shift when the icon swaps
+                        width: 32 
+
+                        textContent:
+                            notch.sysMediaPlaying
+                            ? "󰏤"
+                            : "󰐊"
+
+                        fontSize:
+                            24
+
+                        fgColor:
+                            notch.walFg
+
+                        hoverColor:
+                            notch.walAccent
+
+                        onClicked: {
+                            // FIX 2: Removed the manual boolean toggle.
+                            // playerctl will handle the action, and your background 
+                            // script will update `sysMediaPlaying` naturally.
+                            executor.run(
+                                "playerctl play-pause"
+                            )
+                        }
+                    }
+
+                    // -------------------------------------
+                    // NEXT
+                    // -------------------------------------
+
+                    PodButton {
+                        textContent:
+                            "󰒭"
+
+                        fontSize:
+                            18
+
+                        fgColor:
+                            notch.walFg
+
+                        hoverColor:
+                            notch.walAccent
+
+                        onClicked:
+                            executor.run(
+                                "playerctl next"
+                            )
+                    }
+                }
+            }
+        }
+
+        // =================================================
+        // LAUNCHER VIEW
+        // =================================================
+
+        Item {
+            id: launcherView
+            anchors.fill: parent
+            opacity: notch.isLauncherOpen ? 1 : 0
+            visible: opacity > 0
+
+            Behavior on opacity {
+                NumberAnimation { duration: 200 }
+            }
+
+            Loader {
+                id: launcherLoader
+                anchors.fill: parent
+                active: notch.isLauncherOpen
+                source: notch.isLauncherOpen ? "file:///home/icefox/.config/quickshell/app-launcher/shell.qml" : ""
+
+                onLoaded: {
+                    if (item) {
+                        item.requestClose.connect(function() {
+                            notch.isLauncherOpen = false
+                        })
+                        item.requestLaunch.connect(function(cmd) {
+                            executor.run(cmd)
+                            notch.isLauncherOpen = false
+                        })
+                    }
+                }
+            }
+        }
+
+        // =================================================
+        // WALLPAPER PICKER VIEW
+        // =================================================
+
+        Item {
+            id: wallpaperView
+            anchors.fill: parent
+            opacity: notch.isWallpaperOpen ? 1 : 0
+            visible: opacity > 0
+
+            Behavior on opacity {
+                NumberAnimation { duration: 200 }
+            }
+
+            Loader {
+                id: wallpaperLoader
+                anchors.fill: parent
+                active: notch.isWallpaperOpen
+                source: notch.isWallpaperOpen ? "file:///home/icefox/.config/quickshell/wallpaper-picker/shell.qml" : ""
+
+                onLoaded: {
+                    if (item) {
+                        item.requestClose.connect(function() {
+                            notch.isWallpaperOpen = false
+                        })
+                        item.requestLaunch.connect(function(cmd) {
+                            executor.run(cmd)
+                            notch.isWallpaperOpen = false
+                        })
+                    }
+                }
+            }
+        }
+    }
+
+    // =====================================================
+    // EXECUTOR
+    // =====================================================
+
+    Process {
+        id: executor
+
+        property string pendingCmd: ""
+
+        command: [
+            "bash",
+            "-c",
+            pendingCmd
+        ]
+
+        function run(cmd) {
+            pendingCmd = cmd
+            running = true
+        }
+    }
+
+    // =====================================================
+    // POD BUTTON
+    // =====================================================
+
+    component PodButton: Item {
+
+        id: podBtn
+
+        property string textContent: ""
+
+        property int fontSize: 15
+
+        property color fgColor:
+            notch.walFg
+
+        property color hoverColor:
+            notch.walAccent
+
+        signal clicked(var mouse)
+
+        implicitWidth:
+            btnText.implicitWidth + 6
+
+        implicitHeight:
+            btnText.implicitHeight + 4
+
+        // -----------------------------------------------
+        // TEXT
+        // -----------------------------------------------
+
+        Text {
+            id: btnText
+
+            anchors.centerIn:
+                parent
+
+            text:
+                podBtn.textContent
+
+            font.family:
+                "JetBrainsMono Nerd Font"
+
+            font.pixelSize:
+                podBtn.fontSize
+
+            color:
+                mouseArea.containsMouse
+                ? podBtn.hoverColor
+                : podBtn.fgColor
+
+            Behavior on color {
+                ColorAnimation {
+                    duration: 150
+                }
+            }
+        }
+
+        // -----------------------------------------------
+        // MOUSE
+        // -----------------------------------------------
+
+        MouseArea {
+            id: mouseArea
+
+            anchors.fill:
+                parent
+
+            hoverEnabled:
+                true
+
+            acceptedButtons:
+                Qt.LeftButton |
+                Qt.RightButton
+
+            cursorShape:
+                Qt.PointingHandCursor
+
+            onClicked:
+                mouse =>
+                podBtn.clicked(mouse)
+        }
+    }
+}
