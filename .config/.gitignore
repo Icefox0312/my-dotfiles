@@ -1,0 +1,21 @@
+# Ignore everything by default
+/*
+
+# Whitelist .gitignore and readme
+!.gitignore
+!README.md
+
+# Whitelist your desktop environment & tools
+!hypr/
+!waybar/
+!kitty/
+!rofi/
+!swaync/
+!fastfetch/
+!neofetch/
+
+# Ignore sensitive files inside tracked directories
+*/**/tokens.json
+*/**/credentials*
+*/**/cookies*
+*/**/.env

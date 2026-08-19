@@ -1,0 +1,38 @@
+{
+  "positionX": "right",
+  "positionY": "top",
+
+  "notification-window-width": 280,
+  "notification-icon-size": 48,
+
+  "timeout": 5,
+  "timeout-low": 3,
+  "timeout-critical": 0,
+
+  "fit-to-screen": false,
+
+  "control-center-width": 280,
+  "control-center-height": 650,
+
+  "hide-on-action": true,
+  "hide-on-clear": false,
+
+  "transition-time": 200,
+
+  "widgets": [
+    "mpris",
+    "notifications"
+  ],
+
+  "widget-config": {
+    "mpris": {
+      "image-size": 36,
+      "image-radius": 8,
+      "autohide": true
+    },
+
+    "notifications": {
+      "vexpand": true
+    }
+  }
+}

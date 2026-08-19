@@ -1,0 +1,237 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 48,
+    "spacing": 4,
+    "margin-top": 8,
+    "margin-left": 12,
+    "margin-right": 12,
+    "modules-left": [
+        "custom/arch",
+        "hyprland/workspaces",
+        "custom/swaync",
+        "custom/hyprmod",
+        "custom/walpaper",
+        "custom/lock"
+    ],
+    "modules-center": [
+        "clock"
+    ],
+    "modules-right": [
+        "network",
+        "bluetooth",
+        "group/volume",
+        "group/brightness",
+        "power-profiles-daemon",
+        "battery",
+        "custom/wlogout"
+    ],
+    // =====================================================
+    // ARCH BUTTON
+    // =====================================================
+    "custom/arch": {
+        "format": " ",
+        "tooltip": "Arch Linux",
+        "on-click": "kitty fish -c 'fastfetch; exec fish'"
+    },
+    // =====================================================
+    // SWAYNC
+    // =====================================================
+    "custom/swaync": {
+        "exec": "~/.config/waybar/scripts/swaync-status.sh",
+        "return-type": "json",
+        "interval": 2,
+        "format": "{}",
+        "on-click": "swaync-client -t",
+        "tooltip": true,
+        "tooltip-format": "Notifications"
+    },
+    // =====================================================
+    // HYPRMOD
+    // =====================================================
+    "custom/hyprmod": {
+        "format": "󰒓",
+        "tooltip": "HyprMod",
+        "on-click": "hyprmod"
+    },
+    // =====================================================
+    // WORKSPACES
+    // =====================================================
+    "hyprland/workspaces": {
+        "disable-scroll": false,
+        "all-outputs": true,
+        "active-only": false,
+        "on-click": "activate",
+        "format": "{icon}",
+        "format-icons": {
+            "1": "1",
+            "2": "2",
+            "3": "3",
+            "4": "4",
+            "5": "5",
+            "6": "6",
+            "7": "7",
+            "8": "8",
+            "9": "9",
+            "active": "●",
+            "default": "○"
+        }
+    },
+    // =====================================================
+    // CLOCK
+    // =====================================================
+    "clock": {
+        "format": "{:%I:%M}",
+        "format-alt": "{:%A, %d %B}",
+        "tooltip": false
+    },
+    // =====================================================
+    // NETWORK
+    // =====================================================
+    "network": {
+        "format-wifi": "  {essid}",
+        "format-ethernet": "󰈀  {ifname}",
+        "format-disconnected": "󰖪  Offline",
+        "tooltip-format-wifi": "{essid}\nSignal: {signalStrength}%",
+        "tooltip-format-ethernet": "{ifname}\n{ipaddr}",
+        "tooltip-format-disconnected": "Disconnected"
+    },
+// =====================================================
+    // VOLUME
+    // =====================================================
+    "pulseaudio": {
+        "format": "{icon} {volume}%",
+        "format-muted": "󰖁 Muted",
+        "format-icons": {
+            "default": [
+                "󰕿",
+                "󰖀",
+                "󰕾"
+            ]
+        },
+        "scroll-step": 5,
+        "max-volume": 100,
+        "on-scroll-up": "wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+",
+        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-",
+        "tooltip-format": "Volume: {volume}%"
+    },
+    // =====================================================
+    // VOLUME SLIDER
+    // =====================================================
+    "pulseaudio/slider": {
+        "min": 0,
+        "max": 100,
+        "orientation": "horizontal"
+    },
+    // =====================================================
+    // VOLUME DRAWER
+    // =====================================================
+    "group/volume": {
+        "orientation": "horizontal",
+        "drawer": {
+            "transition-duration": 250,
+            "click-to-reveal": true
+        },
+        "modules": [
+            "pulseaudio",
+            "pulseaudio/slider"
+        ]
+    },
+    // =====================================================
+    // BRIGHTNESS
+    // =====================================================
+    "backlight": {
+        "format": "󰃠 {percent}%",
+        "tooltip": true
+    },
+    // =====================================================
+    // BRIGHTNESS SLIDER
+    // =====================================================
+    "backlight/slider": {
+        "min": 0,
+        "max": 100,
+        "orientation": "horizontal"
+    },
+    // =====================================================
+    // BRIGHTNESS DRAWER
+    // =====================================================
+    "group/brightness": {
+        "orientation": "horizontal",
+        "drawer": {
+            "transition-duration": 250,
+            "click-to-reveal": true
+        },
+        "modules": [
+            "backlight",
+            "backlight/slider"
+        ]
+    },
+    // =====================================================
+    // POWER PROFILE
+    // =====================================================
+    "power-profiles-daemon": {
+        "format": "{icon} {profile}",
+        "format-icons": {
+            "default": "󰚥",
+            "performance": "󰓅",
+            "balanced": "󰾅",
+            "power-saver": "󰌪"
+        },
+        "tooltip-format": "Power profile: {profile}",
+        "on-click": "powerprofilesctl set balanced",
+        "on-click-right": "powerprofilesctl set power-saver",
+        "on-click-middle": "powerprofilesctl set performance"
+    },
+    // =====================================================
+    // BATTERY
+    // =====================================================
+    "battery": {
+        "format": "{capacity}% {icon}",
+        "format-charging": "{capacity}% 󰂄",
+        "format-icons": [
+            "󰁺",
+            "󰁻",
+            "󰁼",
+            "󰁽",
+            "󰁾",
+            "󰁿",
+            "󰂀",
+            "󰂁",
+            "󰂂",
+            "󰁹"
+        ],
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "tooltip": true,
+        "tooltip-format": "{capacity}%\n{timeTo}"
+    },
+    // =====================================================
+    // WLOGOUT
+    // =====================================================
+    "custom/wlogout": {
+        "format": "󰐥",
+        "tooltip": "Power",
+        "on-click": "wlogout"
+    },
+    // =====================================================
+    // Wallpaper Picker (Fixed)
+    // =====================================================
+    "custom/walpaper": {
+        "format": "",
+        "tooltip": "Change Wallpaper",
+        "on-click": "quickshell -p ~/.config/quickshell/wallpaper-picker/"
+    },
+    "bluetooth": {
+        "exec": "~/.config/waybar/scripts/bluetooth-status.sh",
+        "return-type": "json",
+        "interval": 2,
+        "on-click": "bash -c 'if bluetoothctl show | grep -q \"Powered: yes\"; then bluetoothctl power off; else bluetoothctl power on; fi'",
+        "tooltip": true
+    },
+    "custom/lock": {
+        "on-click": "hyprlock",
+        "format": "󰌾"
+    }
+}
