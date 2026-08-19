@@ -24,3 +24,5 @@ My personal dotfiles for Arch Linux, featuring a dynamic tiling Wayland setup us
    ```bash
    git clone [https://github.com/Icefox0312/my-dotfiles.git](https://github.com/Icefox0312/my-dotfiles.git)
    cd my-dotfiles
+   chmod +x install.sh
+   ./install.sh
