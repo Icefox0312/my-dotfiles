@@ -22,6 +22,12 @@ ln -s "$DOTFILES_DIR/.config" "$HOME/.config"
 echo "Setting up custom scripts in ~/.local/bin..."
 mkdir -p "$HOME/.local/bin"
 
+# 3. Added a wallpaper directory
+echo "Adding some wallpapers"
+sudo pacman -S xdg-user-dirs
+xdg-user-dirs-update
+mkdir -p ~/Pictures/Wallpapers && cp ~/my-dotfile/wallpaper ~/Pictures/Wallpapers/
+
 for script in "$DOTFILES_DIR/.local/bin"/*; do
     # Skip if nothing matches
     [ -e "$script" ] || continue
