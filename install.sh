@@ -26,7 +26,7 @@ mkdir -p "$HOME/.local/bin"
 echo "Adding some wallpapers"
 sudo pacman -S xdg-user-dirs
 xdg-user-dirs-update
-mkdir -p ~/Pictures/Wallpapers && cp ~/my-dotfile/wallpaper ~/Pictures/Wallpapers/
+mkdir -p ~/Pictures/Wallpapers && cp ~/my-dotfile/Wallpaper ~/Pictures/Wallpapers/
 
 for script in "$DOTFILES_DIR/.local/bin"/*; do
     # Skip if nothing matches
