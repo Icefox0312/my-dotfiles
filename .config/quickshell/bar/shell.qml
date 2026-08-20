@@ -104,7 +104,7 @@ PanelWindow {
         command: [
             "bash",
             "-c",
-            "bash /home/icefox/.config/quickshell/bar/update-status.sh"
+            "bash $HOME/.config/quickshell/bar/update-status.sh"
         ]
 
         running: true
