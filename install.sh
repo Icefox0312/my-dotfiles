@@ -6,45 +6,37 @@ BACKUP_DIR="$HOME/dotfiles_backup_$(date +%Y%m%d_%H%M%S)"
 
 echo "Starting Dotfiles installation..."
 
-# Create backup directory
-echo "Backing up existing directories to $BACKUP_DIR"
-mkdir -p "$BACKUP_DIR/bin"
+# 1. Install Required Packages
+echo "Installing packages..."
+# python-pywal is the Arch package name for pywal
+sudo pacman -S --needed xdg-user-dirs python-pywal quickshell vscodium
 
-# 1. Handle .config (Full Swap)
-if [ -d "$HOME/.config" ] || [ -e "$HOME/.config" ]; then
-    echo "Backing up .config..."
-    mv "$HOME/.config" "$BACKUP_DIR/"
-fi
-echo "Linking entire .config folder..."
-ln -s "$DOTFILES_DIR/.config" "$HOME/.config"
+# Update user directories
+xdg-user-dirs-update
 
-# 2. Handle .local/bin (Contents Only)
-echo "Setting up custom scripts in ~/.local/bin..."
+# 2. Handle .config (Merge contents, replace duplicates, keep existing)
+echo "Merging configurations into ~/.config..."
+mkdir -p "$HOME/.config"
+
+# rsync merges the folders. 
+# -a keeps permissions/structure, -v shows what it's doing
+# -b and --backup-dir automatically move overwritten files to the backup folder
+rsync -avb --backup-dir="$BACKUP_DIR/.config" "$DOTFILES_DIR/.config/" "$HOME/.config/"
+
+# 3. Handle .local/bin
+echo "Merging custom scripts into ~/.local/bin..."
 mkdir -p "$HOME/.local/bin"
 
-# 3. Added a wallpaper directory
-echo "Adding some wallpapers"
-sudo pacman -S xdg-user-dirs
-xdg-user-dirs-update
-cp ~/my-dotfile/Wallpaper ~/Pictures/Wallpapers/
+rsync -avb --backup-dir="$BACKUP_DIR/bin" "$DOTFILES_DIR/.local/bin/" "$HOME/.local/bin/"
 
-for script in "$DOTFILES_DIR/.local/bin"/*; do
-    # Skip if nothing matches
-    [ -e "$script" ] || continue
+# Make all files in the bin directory executable at once
+chmod +x "$HOME/.local/bin/"* 2>/dev/null
 
-    script_name=$(basename "$script")
-    
-    # Backup existing script if it is already there
-    if [ -e "$HOME/.local/bin/$script_name" ]; then
-        mv "$HOME/.local/bin/$script_name" "$BACKUP_DIR/bin/"
-    fi
-    
-    # Create symlink for the individual script
-    ln -s "$script" "$HOME/.local/bin/$script_name"
-    
-    # Ensure it's executable
-    chmod +x "$DOTFILES_DIR/.local/bin/$script_name"
-    echo "  -> Linked $script_name"
-done
+# 4. Handle Wallpapers
+echo "Setting up wallpapers..."
+mkdir -p "$HOME/Pictures/Wallpapers"
+
+# Copy contents recursively and quietly ignore if the source folder is empty
+cp -r "$DOTFILES_DIR/Wallpaper/"* "$HOME/Pictures/Wallpapers/" 2>/dev/null
 
 echo "Installation complete!"
