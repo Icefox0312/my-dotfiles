@@ -173,7 +173,7 @@ Item {
 
     function applyWallpaper(path) {
         // Use direct absolute path instead of ~ or $HOME
-        let cmd = "/home/icefox/.local/bin/apply_wallpaper.sh '" + path.replace(/'/g, "'\\''") + "' &"
+        let cmd = "$HOME/.local/bin/apply_wallpaper.sh '" + path.replace(/'/g, "'\\''") + "' &"
         root.requestLaunch(cmd)
     }
 
