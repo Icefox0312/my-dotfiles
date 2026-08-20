@@ -104,7 +104,7 @@ PanelWindow {
         command: [
             "bash",
             "-c",
-            "bash $HOME/.config/quickshell/bar/update-status.sh"
+            "bash /home/icefox/.config/quickshell/bar/update-status.sh"
         ]
 
         running: true
@@ -483,7 +483,7 @@ if os.path.exists(path):
 
                     onClicked:
                         executor.run(
-                            'sh -c "echo toggle_wallpaper > /tmp/notch_ipc"'
+                            "quickshell -p ~/.config/quickshell/wallpaper-picker/"
                         )
                 }
             }
@@ -1225,63 +1225,82 @@ if os.path.exists(path):
             Pod {
                 id: batPod
                 
-                podBg: rootWindow.walBg
-                podBorder: rootWindow.walFg
+                podBg:
+                    rootWindow.walBg
+
+                podBorder:
+                    rootWindow.walFg
 
                 Row {
-                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenter:
+                        parent.verticalCenter
+
                     spacing: 6
+
                     padding: 4
                     leftPadding: 12
                     rightPadding: 12
 
                     Text {
                         text: {
-                            let b = rootWindow.sysBattery
-                            // Trim whitespace to prevent match failures and account for 100% capacity
-                            let state = rootWindow.sysBatState.toString().trim()
-                            let isPluggedIn = (state === "Charging" || state === "Full")
 
-                            if (isPluggedIn) {
-                                return b > 90 ? "󰂅" : 
-                                      (b > 80 ? "󰂋" : 
-                                      (b > 60 ? "󰂊" : 
-                                      (b > 40 ? "󰢞" : 
-                                      (b > 20 ? "󰂇" : "󰢜"))))
-                            }
+                            if (
+                                rootWindow.sysBatState ===
+                                "Charging"
+                            )
+                                return "󰂄"
 
-                            return b > 90 ? "󰁹" : 
-                                  (b > 50 ? "󰁿" : 
-                                  (b > 20 ? "󰁼" : "󰂎"))
+                            let b =
+                                rootWindow.sysBattery
+
+                            return b > 90
+                                ? "󰁹"
+                                : (
+                                    b > 50
+                                    ? "󰁿"
+                                    : (
+                                        b > 20
+                                        ? "󰁼"
+                                        : "󰂎"
+                                    )
+                                )
                         }
 
-                        color: {
-                            let state = rootWindow.sysBatState.toString().trim()
-                            let isPluggedIn = (state === "Charging" || state === "Full")
-
-                            if (rootWindow.sysBattery <= 20 && !isPluggedIn)
-                                return rootWindow.walAlert
-                            
-                            if (isPluggedIn)
-                                return rootWindow.walAccent
-                                
-                            return rootWindow.walFg
-                        }
+                        color:
+                            rootWindow.sysBattery <= 20 &&
+                            rootWindow.sysBatState !==
+                            "Charging"
+                            ? rootWindow.walAlert
+                            : (
+                                rootWindow.sysBatState ===
+                                "Charging"
+                                ? rootWindow.walAccent
+                                : rootWindow.walFg
+                            )
 
                         font.pixelSize: 16
-                        anchors.verticalCenter: parent.verticalCenter
+
+                        anchors.verticalCenter:
+                            parent.verticalCenter
                     }
 
                     Text {
-                        text: rootWindow.sysBattery + "%"
-                        color: rootWindow.walFg
+                        text:
+                            rootWindow.sysBattery + "%"
+
+                        color:
+                            rootWindow.walFg
+
                         font.pixelSize: 13
                         font.family: "Inter"
                         font.bold: true
-                        anchors.verticalCenter: parent.verticalCenter
+
+                        anchors.verticalCenter:
+                            parent.verticalCenter
                     }
                 }
             }
+
             // =============================================
             // LOGOUT
             // =============================================

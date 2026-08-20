@@ -546,21 +546,14 @@ Item {
     // =====================================================
 
     Process {
-        id: executor
-
-        property string pendingCmd: ""
-
-        command: [
-            "bash",
-            "-c",
-            pendingCmd
-        ]
-
-        function run(cmd) {
-            pendingCmd = cmd
-            running = true
-        }
+    id: executor
+    property string pendingCmd: ""
+    command: ["bash", "-c", pendingCmd]
+    function run(cmd) {
+        pendingCmd = cmd
+        running = true
     }
+}
 
     // =====================================================
     // POD BUTTON
