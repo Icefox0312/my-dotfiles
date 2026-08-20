@@ -5,7 +5,7 @@
 -- Set programs that you use
 local terminal    = "kitty"
 local fileManager = "thunar"
-local menu = 'sh -c "echo toggle_launcher > /tmp/notch_ipc"'
+local menu = "qs -c bar ipc call notch toggleLauncher"
 
 ---------------------
 ---- KEYBINDINGS ----
@@ -20,11 +20,11 @@ local closeWindowBind = hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("wlogout"))
 hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + D", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("/home/icefox/.config/quickshell/bar/launch.sh"))
+hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("~/.config/quickshell/bar/launch.sh"))
 hl.bind(mainMod .. " + SUPER_L", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))    -- dwindle only
-hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd('sh -c "echo toggle_wallpaper > /tmp/notch_ipc"'))
+hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("qs -c bar ipc call notch toggleWallpaper"))
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("hyprlock"))
 
 -- 1. Screenshot a selected region (Interactive mouse drag)
